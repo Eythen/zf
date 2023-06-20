@@ -1,0 +1,258 @@
+<?php
+
+namespace App\Http\Controllers;
+
+class PayController
+{
+
+    const HOST_URL = "https://test.allinpayhk.com/gateway/cnp/quickpay";
+    const VERSION = "V2.0.0";
+    const SIGN_TYPE = "RSA2";
+    const PUBLIC_KEY = "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsNGWmxYl6uYA/X3k1OOYnMlLvmgJpYMvahxDLUc9CEXbaqMoMMuLbsvfR6Zf3JIeYCjjfgNVDJTsJY/HWWbpHEd4GvQAgv6wywsQ8AJqIHe3fM3B8iwS3XIxZM9fs92lU+mHuVHQdMvciQyaB3iw3IvBBzCEgyqSFcGBrlQOGf1x7fZZKY9RH3EDxqzE+Zrs27BjE8T3sNvUCKcfWGhQGKX80jcqLEnFBl9CIlgL4TRSksQ1U4GhOY0/4Db6UsmbTAQeG2plWgbJ0l0khJ2ODYqTtDujl4zN3tGXQ2gwCErxqBbukIFMkT+jS1lxrBeGGrvuOXTz408tDbAsJnbUYwIDAQAB\n-----END PUBLIC KEY-----";
+    const MERCHANT_ID = "852999958120566";
+    const PRIVATE_KEY = "-----BEGIN RSA PRIVATE KEY-----\nMIIEpAIBAAKCAQEA1snjaOc1LRYlfYZ+17FiUYPsjF/aQJSaw5/19OlQv+n6tE/R8xY6yArnJm3v5XKTHhRmKRgbAGrVvhA5ivs7FebxaefoG3+53l/vYivHISICf3jPYy8F6mTzzd2IIl+udNvBbAijAJpc7wOZNTwKgl0emggjU8n23ya3Azxtx0IHrBoEa/+CnPFV6t8t8yjhWbG0BB8eXfHyuVKEZOSvoNF54OKXz2U3BAUNlTybJw9eCWXiYL04G90vhAMgSSEiullKb8fckwAknqDhd/144uhjfTMRFNNEcxd9aL3dhJ6T2+YDmgpaOHWBeMlPTzlzVbPRwwNQVVmlFPKN2+fzOwIDAQABAoIBAEJpmk9NbjvKpTzy4TWAO45I5FNjL/DYAiKKy1o26ijtB//IznoDXZmNBXv0ckDX9HVQiWYbdf3jCsQB8Ejw9YwIJI1Cj5oxHB+OOk54itHL2knf6QAaAhI/tMLqxLUcMK0hZeUppn0BPcsJqc20CuvULyohagr2X8cQCXaOsMLzLqUDrrRojIiNaFE8aaY5hbpcVoWCq7fgjdsTALr3NJ7u3uhcjT4Aa1Oc9I22sPgezkaHjRex7AfEy48yaGC7d9u03xsxH/QRDeeij0hy7PVTO6LnsbqO9oPzDN/+U2Bs8BOCi0nkwv7HS7as2z7hDNSDLjd58kQApnmV0y5/WgECgYEA8mATGTgB449uFkXqq9LDP9WJBkusoaUV78BjM/7vqjyOLCFEdTxtDdPQukjWDfDsN6a9Tqp6/xIAiZS5Mc6HHYGn4l5KNTULkrs63H/aawuH1lraE1yn8HPmV4YcTmxA7DPEz3UvcYOXUtas5SZF4i8KVK4moOjdnE5Npm3D+1sCgYEA4tzTOiJqJ3pWD6e5pse42/v/OvzAslseCUsxD1ZkziHRh98BaX14zRD4scLo8XvgKdr0VKgFVYSLpv76zWQD7hZ5E8dONtCnBwPVtf+wYIKUlo6MEmjS4cFrwX0E9xuYkewDTahXXEf9rula80Jdo61IIKx1eZTfwUtKFitNzaECgYAJSGCy4JBB9OZUeA0K06GiujzrPs63yijS691gymzHalZPnl6O1ueeVfRyjgOUuRty7jHl52Wai0f1/PoyzCQknyic5NuWuhddYUpZ05O78c8cCJK9lxjffrDdvUcsQb0izsDE6UoN4OpUw+APTq3ygba1k43rL7/9Eoqqyx1sbQKBgQCkpprTjZi38E037YaLqlbbqmiSmlEM4Z7KJf2EYTKmfNsDHvJ6aqtbQh8NfSXt5fdKyXQdYRkF+T4WROcoXJeRnFPh6/wzQnqHV9wqzFlpojxPjUPSNKwhV21qr98Drc6s0buQCEbnXgSbhxgQh7FIkwJPXHuic092jbtGncVJIQKBgQDKKWcpMKU//nd7T3RfYVyoCpJL1xW58XNFAWbdV1+m59ECujETG5hh416QIaFFWDc3OfO7Ye24acR/Z44MzYt+EFCso1YM2v6Pn+Q1Jr1FYWb+UIobXbPYUnNi1E7gRKYj+cQ8IsyXCoJ1Hw52hNdUsFZ6BfLu8YP3VyTRpNLxow==\n-----END RSA PRIVATE KEY-----";
+
+    // CARD-VISA
+    const CARD_HOLDER = "Peter";
+    const CARD_NUMBER = "4012001037141112";
+    const CARD_EXPIRY_MONTH = "12";
+    const CARD_EXPIRY_YEAR = "2027";
+    const CARD_CVV = "212";
+
+
+    const Y4M2D2H2M2S2 = "YmdHis";
+
+    public static function accessTime()
+    {
+        date_default_timezone_set("PRC");
+        return date(self::Y4M2D2H2M2S2, time());
+    }
+
+    /**
+     * sign request data with SHA256RSA algorithm
+     * @param array $array request data
+     * @return string signature
+     */
+    public static function signSHA256RSA(array $array)
+    {
+        ksort($array);
+        $preSign = self::toUrlParams($array, false);
+        echo "request data to be signed: [" . $preSign . "]";
+        echo PHP_EOL;
+        $privateKeyId = openssl_pkey_get_private(self::PRIVATE_KEY);
+        $encrypted = "";
+        openssl_sign($preSign, $encrypted, $privateKeyId, OPENSSL_ALGO_SHA256);
+        openssl_free_key($privateKeyId);
+        $encrypted = base64_encode($encrypted);
+        echo "private key encrypt data: [" . $encrypted . "]";
+        echo PHP_EOL;
+        return $encrypted;
+    }
+
+    /**
+     * @param array $array request data array
+     * @param $isUrlEncode true: need urlEncode  or false: not need to urlEncode
+     * @return string form data: key1&val1=key2&val2
+     */
+    public static function toUrlParams(array $array, $isUrlEncode)
+    {
+        $buff = "";
+        foreach ($array as $k => $v) {
+            if ($v != "" && !is_array($v)) {
+                $buff .= $k . "=";
+                if ($isUrlEncode) {
+                    $buff .= urlencode($v);
+                } else {
+                    $buff .= $v;
+                }
+                $buff .= "&";
+            }
+        }
+
+        $buff = trim($buff, "&");
+        return $buff;
+    }
+
+    public static function request($url, array $array)
+    {
+        // url encode request data
+        $paramsStr = self::toUrlParams($array, true);
+        echo "request url: [" . $url . "]";
+        echo PHP_EOL;
+        echo "request param: [" . $paramsStr . "]";
+        echo PHP_EOL;
+        $ch = curl_init();
+        $this_header = array("content-type: application/x-www-form-urlencoded;charset=UTF-8");
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $this_header);
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $paramsStr);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, FALSE);
+
+        $output = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        echo "http code: " . $httpCode;
+        echo PHP_EOL;
+        return $output;
+    }
+
+    public static function validSign(array $array)
+    {
+        $sign = $array['sign'];
+        unset($array['sign']);
+        $publicKeyId = openssl_get_publickey(self::PUBLIC_KEY);
+        ksort($array);
+        $preSign = self::toUrlParams($array, false);
+        echo "response data to be signed:[" . $preSign . "]";
+        echo PHP_EOL;
+        $ok = openssl_verify($preSign, base64_decode($sign), $publicKeyId, OPENSSL_ALGO_SHA256);
+        openssl_free_key($publicKeyId);
+        $ok = $ok == 1 ? true : false;
+        echo "valid response sign result: ";
+        echo $ok ? "success" : "fail";
+        return $ok;
+    }
+
+    public function index()
+    {
+        $params = $this->cnpSaleTestsDirect('HKD', '5');
+//    $params = $this->cnpSaleTestsJump('HKD', '5');
+
+        $rsp = self::request(self::HOST_URL, $params);
+        echo "response data: " . $rsp;
+        echo PHP_EOL;
+        $rspArray = json_decode($rsp, true);
+        $resultCode = $rspArray['resultCode'];
+        echo "resultCode: " . $resultCode;
+        echo PHP_EOL;
+        $resultDesc = $rspArray['resultDesc'];
+        echo "resultDesc: " . $resultDesc;
+        echo PHP_EOL;
+        // valid response data
+        self::validSign($rspArray);
+    }
+
+    protected function cnpSaleTestsDirect($currency, $amount)
+    {
+        $params = array();
+        $params["version"] = self::VERSION;
+        $params["mchtId"] = self::MERCHANT_ID;
+        $params["transType"] = "QuickPay";
+        $params["accessTime"] = self::accessTime();
+        $params["currency"] = $currency;
+        $params["amount"] = $amount;
+        $params["language"] = "en";
+        $params["email"] = "961836760@qq.com";
+
+        $params["cardHolder"] = self::CARD_HOLDER;
+        $params["acctNo"] = self::CARD_NUMBER;
+        $params["expiryMonth"] = self::CARD_EXPIRY_MONTH;
+        $params["expiryYear"] = self::CARD_EXPIRY_YEAR;
+        $params["acctCvv"] = self::CARD_CVV;
+
+        $params["productInfo"] = $this->getProductInfo();
+        $params["shippingFirstName"] = "Peter 三";
+        $params["shippingLastName"] = "zh张";
+        $params["shippingAddress1"] = "广东省广州市测试 测试 测试测试 测试 测试*";
+        $params["shippingAddress2"] = "广东省广州市测试 Another";
+        $params["shippingCity"] = "shanghai";
+        $params["shippingState"] = "iai";
+        $params["shippingCountry"] = "US";
+        $params["shippingZipCode"] = "440000";
+        $params["shippingPhone"] = "1231230080";
+
+        $params["billingFirstName"] = "杰伦";
+        $params["billingLastName"] = "周";
+        $params["billingAddress1"] = "广东省广州市测试";
+        $params["billingCity"] = "shagnhai";
+        $params["billingState"] = "shanghai";
+        $params["billingCountry"] = "CN";
+        $params["billingZipCode"] = "440000";
+        $params["billingPhone"] = "1231230080";
+
+        $params["userAgent"] = "360Brower";
+        $params["ipAddress"] = "120.0.0.1";
+        $params["panIsPaste"] = "0";
+
+        $params["accessOrderId"] = time();
+
+        // 3DS way
+        $params["securityMode"] = "3DS";
+        $params["dmInf"] = $this->getDmInf();
+
+        $params["signType"] = self::SIGN_TYPE;
+        // sign request data
+        $params["sign"] = self::signSHA256RSA($params);
+
+        return $params;
+    }
+
+    protected function cnpSaleTestsJump($currency, $amount)
+    {
+        $params["panIsPaste"] = "0";
+
+        $params = array();
+        $params["version"] = self::VERSION;
+        $params["mchtId"] = self::MERCHANT_ID;
+        $params["transType"] = "Pay";
+        $params["accessTime"] = self::accessTime();
+        $params["language"] = "en";
+        $params["email"] = "961836760@qq.com";
+        $params["currency"] = $currency;
+        $params["amount"] = $amount;
+        $params["productInfo"] = $this->getProductInfo();
+        $params["shippingFirstName"] = "Peter 三";
+        $params["shippingLastName"] = "zh张";
+        $params["shippingAddress1"] = "广东省广州市测试 测试 测试测试 测试 测试*";
+        $params["shippingAddress2"] = "广东省广州市测试 Another";
+        $params["shippingCity"] = "shagnhai";
+        $params["shippingCountry"] = "CN";
+        $params["shippingState"] = "shagnhai";
+        $params["shippingZipCode"] = "440000";
+        $params["shippingPhone"] = "1231230080";
+        $params["billingFirstName"] = "杰伦";
+        $params["billingLastName"] = "周";
+        $params["billingAddress1"] = "广东省广州市测试 测试 测试测试 测试 测试*";
+        $params["billingAddress2"] = "广东省广州市测试 测试 测试测试 测试RRRRRRRRRR";
+        $params["billingCity"] = "shagnhai";
+        $params["billingCountry"] = "CN";
+        $params["billingState"] = "shanghai";
+        $params["billingZipCode"] = "440000";
+        $params["billingPhone"] = "1231230080";
+        $params["notifyUrl"] = "http://www.baidu.com";
+        $params["returnUrl"] = "http://www.baidu.com";
+
+        $params["accessOrderId"] = time();
+
+        $params["signType"] = self::SIGN_TYPE;
+
+        $params["bizreserve"] = "test";
+        $params["sign"] = self::signSHA256RSA($params);
+        return $params;
+    }
+
+    protected function getProductInfo()
+    {
+        return
+            "[{\"sku\":\"123121\",\"productName\":\"test测试\", \"price\":\"113.9989\", \"quantity\":\"800\", \"productImage\":\"imageUrl\",\"productUrl\":\"goodsUrl\"},"
+            . "{\"sku\":\"123122\",\"productName\":\"test测试1\", \"price\":\"114.99\", \"quantity\":\"800\", \"productImage\":\"imageUrl\",\"productUrl\":\"goodsUrl\"},"
+            . "{\"sku\":\"123123\",\"productName\":\"test测试2\", \"price\":\"115.99\", \"quantity\":\"800\", \"productImage\":\"imageUrl\",\"productUrl\":\"goodsUrl\"},"
+            . "{\"sku\":\"123124\",\"productName\":\"test测试3\", \"price\":\"116.99\", \"quantity\":\"800\", \"productImage\":\"imageUrl\",\"productUrl\":\"goodsUrl\"}]";
+    }
+
+    protected function getDmInf()
+    {
+        $dmInf = array();
+        $dmInf["MerchantType"] = "RETAILS";
+        $dmInf["3DSFlag"] = "YES";
+        $dmInf["OrderChannel"] = "WEBSITE";
+        $dmInf["BuyerName"] = "Peter";
+        $dmInf["AccountAge"] = "";
+        return json_encode($dmInf);
+    }
+}
