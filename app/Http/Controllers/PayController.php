@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 class PayController
 {
-
     const HOST_URL = "https://test.allinpayhk.com/gateway/cnp/quickpay";
     const VERSION = "V2.0.0";
     const SIGN_TYPE = "RSA2";
@@ -14,10 +13,10 @@ class PayController
 
     // CARD-VISA
     const CARD_HOLDER = "Peter";
-    const CARD_NUMBER = "4012001037141112";
+    const CARD_NUMBER = "4761340000000076";
     const CARD_EXPIRY_MONTH = "12";
     const CARD_EXPIRY_YEAR = "2027";
-    const CARD_CVV = "212";
+    const CARD_CVV = "705";
 
 
     const Y4M2D2H2M2S2 = "YmdHis";
@@ -28,32 +27,22 @@ class PayController
         return date(self::Y4M2D2H2M2S2, time());
     }
 
-    /**
-     * sign request data with SHA256RSA algorithm
-     * @param array $array request data
-     * @return string signature
-     */
     public static function signSHA256RSA(array $array)
     {
         ksort($array);
         $preSign = self::toUrlParams($array, false);
-        echo "request data to be signed: [" . $preSign . "]";
-        echo PHP_EOL;
+//        echo "request data to be signed: [" . $preSign . "]";
+//        echo PHP_EOL;
         $privateKeyId = openssl_pkey_get_private(self::PRIVATE_KEY);
         $encrypted = "";
         openssl_sign($preSign, $encrypted, $privateKeyId, OPENSSL_ALGO_SHA256);
         openssl_free_key($privateKeyId);
         $encrypted = base64_encode($encrypted);
-        echo "private key encrypt data: [" . $encrypted . "]";
-        echo PHP_EOL;
+//        echo "private key encrypt data: [" . $encrypted . "]";
+//        echo PHP_EOL;
         return $encrypted;
     }
 
-    /**
-     * @param array $array request data array
-     * @param $isUrlEncode true: need urlEncode  or false: not need to urlEncode
-     * @return string form data: key1&val1=key2&val2
-     */
     public static function toUrlParams(array $array, $isUrlEncode)
     {
         $buff = "";
@@ -77,10 +66,10 @@ class PayController
     {
         // url encode request data
         $paramsStr = self::toUrlParams($array, true);
-        echo "request url: [" . $url . "]";
-        echo PHP_EOL;
-        echo "request param: [" . $paramsStr . "]";
-        echo PHP_EOL;
+//        echo "request url: [" . $url . "]";
+//        echo PHP_EOL;
+//        echo "request param: [" . $paramsStr . "]";
+//        echo PHP_EOL;
         $ch = curl_init();
         $this_header = array("content-type: application/x-www-form-urlencoded;charset=UTF-8");
         curl_setopt($ch, CURLOPT_HTTPHEADER, $this_header);
@@ -96,8 +85,8 @@ class PayController
         $output = curl_exec($ch);
         $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
-        echo "http code: " . $httpCode;
-        echo PHP_EOL;
+//        echo "http code: " . $httpCode;
+//        echo PHP_EOL;
         return $output;
     }
 
@@ -108,33 +97,53 @@ class PayController
         $publicKeyId = openssl_get_publickey(self::PUBLIC_KEY);
         ksort($array);
         $preSign = self::toUrlParams($array, false);
-        echo "response data to be signed:[" . $preSign . "]";
-        echo PHP_EOL;
+//        echo "response data to be signed:[" . $preSign . "]";
+//        echo PHP_EOL;
         $ok = openssl_verify($preSign, base64_decode($sign), $publicKeyId, OPENSSL_ALGO_SHA256);
         openssl_free_key($publicKeyId);
         $ok = $ok == 1 ? true : false;
-        echo "valid response sign result: ";
-        echo $ok ? "success" : "fail";
+//        echo "valid response sign result: ";
+//        echo $ok ? "success" : "fail";
         return $ok;
     }
 
     public function index()
     {
-        $params = $this->cnpSaleTestsDirect('HKD', '5');
-//    $params = $this->cnpSaleTestsJump('HKD', '5');
+//        $params = $this->cnpSaleTestsDirect('HKD', '5');
+        $params = $this->cnpSaleTestsJump('HKD', '5');
 
         $rsp = self::request(self::HOST_URL, $params);
-        echo "response data: " . $rsp;
-        echo PHP_EOL;
+//        echo "response data: " . $rsp;
+//        echo PHP_EOL;
         $rspArray = json_decode($rsp, true);
-        $resultCode = $rspArray['resultCode'];
-        echo "resultCode: " . $resultCode;
-        echo PHP_EOL;
-        $resultDesc = $rspArray['resultDesc'];
-        echo "resultDesc: " . $resultDesc;
-        echo PHP_EOL;
+//        $resultCode = $rspArray['resultCode'];
+//        echo "resultCode: " . $resultCode;
+//        echo PHP_EOL;
+//        $resultDesc = $rspArray['resultDesc'];
+//        echo "resultDesc: " . $resultDesc;
+//        echo PHP_EOL;
         // valid response data
-        self::validSign($rspArray);
+//        self::validSign($rspArray);
+//        if (self::validSign($rspArray)) {
+////            dd($rspArray['payUrl']);
+//            return redirect($rspArray['payUrl']);
+//        }
+
+        $data = [
+            'status' => false,
+            'msg' => '',
+            'pay_url' => '',
+        ];
+        if ($rspArray['resultCode'] == "0000") {
+            if (self::validSign($rspArray)) {
+                $data['status'] = true;
+                $data['pay_url'] = $rspArray['payUrl'];
+                $data['msg'] = $rspArray['resultDesc'];
+            }
+        } else {
+            $data['msg'] = $rspArray['resultDesc'];
+        }
+        return response()->json($data);
     }
 
     protected function cnpSaleTestsDirect($currency, $amount)
@@ -159,7 +168,6 @@ class PayController
         $params["shippingFirstName"] = "Peter 三";
         $params["shippingLastName"] = "zh张";
         $params["shippingAddress1"] = "广东省广州市测试 测试 测试测试 测试 测试*";
-        $params["shippingAddress2"] = "广东省广州市测试 Another";
         $params["shippingCity"] = "shanghai";
         $params["shippingState"] = "iai";
         $params["shippingCountry"] = "US";
@@ -209,7 +217,6 @@ class PayController
         $params["shippingFirstName"] = "Peter 三";
         $params["shippingLastName"] = "zh张";
         $params["shippingAddress1"] = "广东省广州市测试 测试 测试测试 测试 测试*";
-        $params["shippingAddress2"] = "广东省广州市测试 Another";
         $params["shippingCity"] = "shagnhai";
         $params["shippingCountry"] = "CN";
         $params["shippingState"] = "shagnhai";
@@ -218,14 +225,13 @@ class PayController
         $params["billingFirstName"] = "杰伦";
         $params["billingLastName"] = "周";
         $params["billingAddress1"] = "广东省广州市测试 测试 测试测试 测试 测试*";
-        $params["billingAddress2"] = "广东省广州市测试 测试 测试测试 测试RRRRRRRRRR";
         $params["billingCity"] = "shagnhai";
         $params["billingCountry"] = "CN";
         $params["billingState"] = "shanghai";
         $params["billingZipCode"] = "440000";
         $params["billingPhone"] = "1231230080";
-        $params["notifyUrl"] = "http://www.baidu.com";
-        $params["returnUrl"] = "http://www.baidu.com";
+        $params["notifyUrl"] = "https://www.twhealth.top/";
+        $params["returnUrl"] = "https://www.twhealth.top/";
 
         $params["accessOrderId"] = time();
 
