@@ -107,7 +107,7 @@ class PayController
         return $ok;
     }
 
-    public function index()
+    public function pay()
     {
 //        $params = $this->cnpSaleTestsDirect('HKD', '5');
         $params = $this->cnpSaleTestsJump('HKD', '5');
@@ -155,7 +155,7 @@ class PayController
         $params["accessTime"] = self::accessTime();
         $params["currency"] = $currency;
         $params["amount"] = $amount;
-        $params["language"] = "en";
+        $params["language"] = "zh";
         $params["email"] = "961836760@qq.com";
 
         $params["cardHolder"] = self::CARD_HOLDER;
@@ -209,7 +209,7 @@ class PayController
         $params["mchtId"] = self::MERCHANT_ID;
         $params["transType"] = "Pay";
         $params["accessTime"] = self::accessTime();
-        $params["language"] = "en";
+        $params["language"] = "zh";
         $params["email"] = "961836760@qq.com";
         $params["currency"] = $currency;
         $params["amount"] = $amount;
