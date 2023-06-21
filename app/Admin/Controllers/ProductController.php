@@ -7,6 +7,7 @@ use Dcat\Admin\Form;
 use Dcat\Admin\Grid;
 use Dcat\Admin\Show;
 use Dcat\Admin\Http\Controllers\AdminController;
+use Ramsey\Uuid\Uuid;
 
 class ProductController extends AdminController
 {
@@ -20,11 +21,16 @@ class ProductController extends AdminController
         return Grid::make(new Product(), function (Grid $grid) {
             $grid->column('id')->sortable();
             $grid->column('name');
-            $grid->column('pic');
+            $grid->column('pic')->image('', 100, 100);
             $grid->column('money');
             $grid->column('money_type');
             $grid->column('num');
-            $grid->column('uid');
+            $grid->column('二维码')->qrcode(function () {
+                return env('APP_URL') . "?uid=" . $this->uid;
+            }, 200, 200);
+            $grid->column('链接')->display(function () {
+                return env('APP_URL') . "?uid=" . $this->uid;
+            })->copyable();
             $grid->column('created_at');
             $grid->column('updated_at')->sortable();
 
@@ -69,11 +75,11 @@ class ProductController extends AdminController
             $form->text('name')->required();
             $form->image('pic')->disk('admin')->saveFullUrl()->uniqueName()->autoUpload();
             $form->text('money')->required();
-//            $form->text('money_type');
             //USD美元TWD台币HKD港币
             $form->radio('money_type')->options(['USD' => '美元', 'TWD'=> '台币', 'HKD' => '港币'])->default('USD');
             $form->number('num')->required();
-            $form->text('uid')->disable();
+            $data = Uuid::uuid1();
+            $form->hidden('uid')->value($data->getHex());
 
             $form->display('created_at');
             $form->display('updated_at');

@@ -107,7 +107,7 @@
                                 <tr>
                                     <td width="10%"><span class="leftti">產品</span></td>
                                     <td width="50%"><span class="rithtti">
-                                    <img src="/static/1.jpg" style="width:80px;vertical-align:middle;display:inline-block">&nbsp;&nbsp;桑葚酵素×1</span>
+                                    <img src="{{ $info->pic }}" style="width:80px;vertical-align:middle;display:inline-block">&nbsp;&nbsp;{{$info->name}}×{{$info->num}}</span>
                                     </td>
                                 </tr>
                                 <tr>
@@ -130,7 +130,7 @@
                                 </tr>
                                 <tr>
                                     <td><span class="leftti">金額</span></td>
-                                    <td><span class="rithtti">HK$699</span></td>
+                                    <td><span class="rithtti">{{$info->money_type}}${{$info->money}}</span></td>
                                 </tr>
                                 <tr>
                                     <td><span class="leftti">付款方式</span></td>

@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Product;
+use Illuminate\Http\Request;
+
 class PayController
 {
     const HOST_URL = "https://test.allinpayhk.com/gateway/cnp/quickpay";
@@ -105,6 +108,16 @@ class PayController
 //        echo "valid response sign result: ";
 //        echo $ok ? "success" : "fail";
         return $ok;
+    }
+
+    public function index(Request $request)
+    {
+        $uid = $request->input('uid');
+        if (!$uid) {
+            return abort("404");
+        }
+        $info = Product::where('uid', $uid)->first();
+        return view('welcome', compact('info'));
     }
 
     public function pay()
