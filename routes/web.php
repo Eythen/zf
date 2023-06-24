@@ -16,4 +16,4 @@ use Illuminate\Support\Facades\Route;
 Route::get('', [PayController::class, 'index']);
 
 
-Route::get('/test', [PayController::class, 'pay']);
+Route::post('/pay', [PayController::class, 'pay']);

@@ -120,10 +120,11 @@ class PayController
         return view('welcome', compact('info'));
     }
 
-    public function pay()
+    public function pay(Request $request)
     {
+        $data = $request->all();
+        $params = $this->cnpSaleTestsJump($data);
 //        $params = $this->cnpSaleTestsDirect('HKD', '5');
-        $params = $this->cnpSaleTestsJump('HKD', '5');
 
         $rsp = self::request(self::HOST_URL, $params);
 //        echo "response data: " . $rsp;
@@ -213,44 +214,54 @@ class PayController
         return $params;
     }
 
-    protected function cnpSaleTestsJump($currency, $amount)
+    protected function cnpSaleTestsJump($data = array())
     {
-        $params["panIsPaste"] = "0";
-
         $params = array();
+        $params["panIsPaste"] = "1";
         $params["version"] = self::VERSION;
         $params["mchtId"] = self::MERCHANT_ID;
         $params["transType"] = "Pay";
-        $params["accessTime"] = self::accessTime();
-        $params["language"] = "zh";
-        $params["email"] = "961836760@qq.com";
-        $params["currency"] = $currency;
-        $params["amount"] = $amount;
-        $params["productInfo"] = $this->getProductInfo();
-        $params["shippingFirstName"] = "Peter 三";
-        $params["shippingLastName"] = "zh张";
-        $params["shippingAddress1"] = "广东省广州市测试 测试 测试测试 测试 测试*";
+        if ($data['money_type']) {
+            $params["language"] = "en";
+        } else {
+            $params["language"] = "zh-hant";
+        }
+        $params["currency"] = $data['money_type'];
+        $params["amount"] = $data['money'];
+//        $params["productInfo"] = $this->getProductInfo();
+        $product_info = [
+            [
+                'sku' => $data['uid'],
+                'productName' => $data['product_name'],
+                'price' => $data['money'],
+                'quantity' => $data['product_num'],
+            ]
+        ];
+        $params["productInfo"] = json_encode($product_info);
+        $params["shippingFirstName"] = $data['first_name'];
+        $params["shippingLastName"] = $data['last_name'];
+        $params["shippingAddress1"] = $data['address'];
         $params["shippingCity"] = "shagnhai";
         $params["shippingCountry"] = "CN";
         $params["shippingState"] = "shagnhai";
         $params["shippingZipCode"] = "440000";
-        $params["shippingPhone"] = "1231230080";
-        $params["billingFirstName"] = "杰伦";
-        $params["billingLastName"] = "周";
-        $params["billingAddress1"] = "广东省广州市测试 测试 测试测试 测试 测试*";
-        $params["billingCity"] = "shagnhai";
-        $params["billingCountry"] = "CN";
-        $params["billingState"] = "shanghai";
-        $params["billingZipCode"] = "440000";
-        $params["billingPhone"] = "1231230080";
+        $params["shippingPhone"] = $data['mobile'];
+        $params["billingPhone"] = $data['mobile'];
         $params["notifyUrl"] = "https://www.twhealth.top/";
         $params["returnUrl"] = "https://www.twhealth.top/";
-
+//        $params["accessTime"] = self::accessTime();
+//        $params["email"] = "961836760@qq.com";
+//        $params["email"] = "";
+//        $params["billingFirstName"] = "杰伦";
+//        $params["billingLastName"] = "周";
+//        $params["billingAddress1"] = "广东省广州市测试 测试 测试测试 测试 测试*";
+//        $params["billingCity"] = "shagnhai";
+//        $params["billingCountry"] = "CN";
+//        $params["billingState"] = "shanghai";
+//        $params["billingZipCode"] = "440000";
         $params["accessOrderId"] = time();
-
         $params["signType"] = self::SIGN_TYPE;
-
-        $params["bizreserve"] = "test";
+//        $params["bizreserve"] = "test";
         $params["sign"] = self::signSHA256RSA($params);
         return $params;
     }
