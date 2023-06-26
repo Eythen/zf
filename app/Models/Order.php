@@ -12,5 +12,20 @@ class Order extends Model
     use SoftDeletes;
 
     protected $table = 'order';
-    
+
+    protected $fillable = [
+        'order_sn',
+        'product_id',
+        'name',
+        'pic',
+        'num',
+        'money_type',
+        'money',
+        'first_name',
+        'last_name',
+        'mobile',
+        'address',
+        'status',
+    ];
+
 }
