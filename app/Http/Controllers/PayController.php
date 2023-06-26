@@ -38,8 +38,8 @@ class PayController
 
     public function pay(Request $request)
     {
-        $data = $request->all();
-        $params = $this->cnpSaleTestsJump($data);
+        $post = $request->all();
+        $params = $this->cnpSaleTestsJump($post);
 //        $params = $this->cnpSaleTestsDirect('HKD', '5');
 
         $rsp = self::request(self::HOST_URL, $params);
@@ -68,16 +68,16 @@ class PayController
             if (self::validSign($rspArray)) {
                 Order::create([
                     'order_sn' => $params['accessOrderId'],
-                    'product_id' => $data['product_id'],
-                    'name' => $data['product_name'],
-                    'pic' => $data['pic'],
-                    'num' => $data['product_num'],
-                    'money_type' => $data['money_type'],
-                    'money' => $data['money'],
-                    'first_name' => $data['first_name'],
-                    'last_name' => $data['last_name'],
-                    'mobile' => $data['mobile'],
-                    'address' => $data['address'],
+                    'product_id' => $post['product_id'],
+                    'name' => $post['product_name'],
+                    'pic' => $post['pic'],
+                    'num' => $post['product_num'],
+                    'money_type' => $post['money_type'],
+                    'money' => $post['money'],
+                    'first_name' => $post['first_name'],
+                    'last_name' => $post['last_name'],
+                    'mobile' => $post['mobile'],
+                    'address' => $post['address'],
                     'status' => 0,
                 ]);
                 $data['status'] = true;
