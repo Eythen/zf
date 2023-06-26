@@ -46,7 +46,7 @@ class PayController
             $rsp = self::request(self::HOST_URL, $params);
             $rspArray = json_decode($rsp, true);
         } else {
-            $params = wxOrderPay($post);
+            $params = $this->wxOrderPay($post);
 
             $rsp = self::request(self::WX_HOST_URL, $params);
             $rspArray = json_decode($rsp, true);
