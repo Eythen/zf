@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Log;
 class PayController
 {
     const HOST_URL = "https://test.allinpayhk.com/gateway/cnp/quickpay";
+    const WX_HOST_URL = "https://oats.allinpay.com/gateway/pay/consumeTrans";
+
     const VERSION = "V2.0.0";
     const SIGN_TYPE = "RSA2";
     const PUBLIC_KEY = "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsNGWmxYl6uYA/X3k1OOYnMlLvmgJpYMvahxDLUc9CEXbaqMoMMuLbsvfR6Zf3JIeYCjjfgNVDJTsJY/HWWbpHEd4GvQAgv6wywsQ8AJqIHe3fM3B8iwS3XIxZM9fs92lU+mHuVHQdMvciQyaB3iw3IvBBzCEgyqSFcGBrlQOGf1x7fZZKY9RH3EDxqzE+Zrs27BjE8T3sNvUCKcfWGhQGKX80jcqLEnFBl9CIlgL4TRSksQ1U4GhOY0/4Db6UsmbTAQeG2plWgbJ0l0khJ2ODYqTtDujl4zN3tGXQ2gwCErxqBbukIFMkT+jS1lxrBeGGrvuOXTz408tDbAsJnbUYwIDAQAB\n-----END PUBLIC KEY-----";
@@ -39,25 +41,16 @@ class PayController
     public function pay(Request $request)
     {
         $post = $request->all();
-        $params = $this->cnpSaleTestsJump($post);
-//        $params = $this->cnpSaleTestsDirect('HKD', '5');
+        if ($post['payment'] == 1) {
+            $params = $this->cnpSaleTestsJump($post);
+            $rsp = self::request(self::HOST_URL, $params);
+            $rspArray = json_decode($rsp, true);
+        } else {
+            $params = wxOrderPay($post);
 
-        $rsp = self::request(self::HOST_URL, $params);
-//        echo "response data: " . $rsp;
-//        echo PHP_EOL;
-        $rspArray = json_decode($rsp, true);
-//        $resultCode = $rspArray['resultCode'];
-//        echo "resultCode: " . $resultCode;
-//        echo PHP_EOL;
-//        $resultDesc = $rspArray['resultDesc'];
-//        echo "resultDesc: " . $resultDesc;
-//        echo PHP_EOL;
-        // valid response data
-//        self::validSign($rspArray);
-//        if (self::validSign($rspArray)) {
-////            dd($rspArray['payUrl']);
-//            return redirect($rspArray['payUrl']);
-//        }
+            $rsp = self::request(self::WX_HOST_URL, $params);
+            $rspArray = json_decode($rsp, true);
+        }
 
         $data = [
             'status' => false,
@@ -79,6 +72,7 @@ class PayController
                     'mobile' => $post['mobile'],
                     'address' => $post['address'],
                     'status' => 0,
+                    'payment' => $post['payment'],
                 ]);
                 $data['status'] = true;
                 $data['pay_url'] = $rspArray['payUrl'];
@@ -88,6 +82,23 @@ class PayController
             $data['msg'] = $rspArray['resultDesc'];
         }
         return response()->json($data);
+    }
+
+    function wxOrderPay($data = array())
+    {
+        $params = array();
+        $params["requestNo"] = time();
+        $params["version"] = self::VERSION;
+        $params["accessCode"] = self::ACCESS_CODE;
+        $params["transType"] = "WXPAY_BRANCH_MP";
+        $params["signType"] = self::SIGN_TYPE;
+        $params["mchNo"] = self::MERCHANT_ID;
+        $params["outTransNo"] = time();
+        $params["transAmount"] = $data['money'];
+        $params["currency"] = $data['money_type'];
+        $params["notifyUrl"] = 'https://www.twhealth.top/notify';
+        $params["signature"] = signSHA256RSA($params);
+        return $params;
     }
 
     public function notify(Request $request)

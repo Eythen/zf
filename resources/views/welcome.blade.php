@@ -158,7 +158,10 @@
                                 </tr>
                                 <tr>
                                     <td><span class="leftti">付款方式（Payment method）</span></td>
-                                    <td><span class="rithtti">VISA銀行卡支付</span></td>
+                                    <td>
+                                        <span class="rithtti"><input type="radio" name="payment" value="1">VISA銀行卡支付</span>
+                                        <span class="rithtti"><input type="radio" name="payment" value="2">微信扫码</span>
+                                    </td>
                                 </tr>
 {{--                                <tr>--}}
 {{--                                    <td><span class="leftti">卡號（Card number）</span></td>--}}
