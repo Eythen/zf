@@ -26,6 +26,7 @@ class Order extends Model
         'mobile',
         'address',
         'status',
+        'payment'
     ];
 
 }
