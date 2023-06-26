@@ -92,8 +92,19 @@ class PayController
 
     public function notify(Request $request)
     {
-        Log::info($request->all());
-//        return $request->all();
+        $data = $request->all();
+        if ($data['resultCode'] == '0000') {
+            $info = Order::where([
+                'order_sn' => $data['accessOrderId'],
+                'status' => 0
+            ])->first();
+            if ($info) {
+                $info->status = 1;
+                $info->save();
+                return 'SUCCESS';
+            }
+        }
+        return false;
     }
 
     public function success()
