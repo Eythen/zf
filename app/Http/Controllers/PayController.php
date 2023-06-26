@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Order;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -65,6 +66,20 @@ class PayController
         ];
         if ($rspArray['resultCode'] == "0000") {
             if (self::validSign($rspArray)) {
+                Order::create([
+                    'order_sn' => $params['accessOrderId'],
+                    'product_id' => $data['product_id'],
+                    'name' => $data['product_name'],
+                    'pic' => $data['pic'],
+                    'num' => $data['product_num'],
+                    'money_type' => $data['money_type'],
+                    'money' => $data['money'],
+                    'first_name' => $data['first_name'],
+                    'last_name' => $data['last_name'],
+                    'mobile' => $data['mobile'],
+                    'address' => $data['address'],
+                    'status' => 0,
+                ]);
                 $data['status'] = true;
                 $data['pay_url'] = $rspArray['payUrl'];
                 $data['msg'] = $rspArray['resultDesc'];
@@ -212,7 +227,7 @@ class PayController
 //        $params["billingCountry"] = "CN";
 //        $params["billingState"] = "shanghai";
 //        $params["billingZipCode"] = "440000";
-        $params["accessOrderId"] = time();
+        $params["accessOrderId"] = time() . rand(0000, 9999);
         $params["signType"] = self::SIGN_TYPE;
 //        $params["bizreserve"] = "test";
         $params["sign"] = self::signSHA256RSA($params);
@@ -271,7 +286,7 @@ class PayController
         $params["ipAddress"] = "120.0.0.1";
         $params["panIsPaste"] = "0";
 
-        $params["accessOrderId"] = time() . rand(0000,9999);
+        $params["accessOrderId"] = time() . rand(0000, 9999);
 
         // 3DS way
         $params["securityMode"] = "3DS";

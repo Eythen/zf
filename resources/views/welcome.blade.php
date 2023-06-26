@@ -110,6 +110,8 @@
                             <input type="hidden" name="_token" value="{{ csrf_token() }}" />
                             <input type="hidden" name="product_name" value="{{$info->name}}">
                             <input type="hidden" name="product_num" value="{{$info->num}}">
+                            <input type="hidden" name="product_id" value="{{$info->id}}">
+                            <input type="hidden" name="pic" value="{{$info->pic}}">
                             <input type="hidden" name="uid" value="{{$info->uid}}">
                             <table style="width: 100%;line-height: 8em;" id="jsjiesh">
                                 <tbody>
