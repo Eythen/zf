@@ -99,7 +99,7 @@ class PayController
         $params["transAmount"] = $data['money'];
         $params["currency"] = $data['money_type'];
         $params["notifyUrl"] = 'https://www.twhealth.top/notify';
-        $params["signature"] = signSHA256RSA($params);
+        $params["signature"] = self::signSHA256RSA($params);
         return $params;
     }
 
