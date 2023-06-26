@@ -30,7 +30,11 @@ class OrderController extends AdminController
             $grid->column('mobile');
             $grid->column('address');
             //0、未支付；1、已支付；2、已发货
-            $grid->column('status')->radio(['未支付', '已支付', '已发货'], true);
+            $grid->column('status')->using(['未支付', '已支付', '已发货'])->label([
+                0 => 'danger',
+                1 => 'primary',
+                2 => 'success',
+            ]);
             $grid->column('logistics_company')->editable(true);
             $grid->column('logistics_number')->editable(true);
             $grid->column('created_at');
