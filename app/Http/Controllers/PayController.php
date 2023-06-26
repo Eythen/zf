@@ -96,6 +96,11 @@ class PayController
 //        return $request->all();
     }
 
+    public function success()
+    {
+        return view('success');
+    }
+
     public static function accessTime()
     {
         date_default_timezone_set("PRC");
@@ -215,8 +220,8 @@ class PayController
         $params["shippingZipCode"] = "440000";
         $params["shippingPhone"] = $data['mobile'];
         $params["billingPhone"] = $data['mobile'];
-        $params["notifyUrl"] = "https://www.twhealth.top/";
-//        $params["returnUrl"] = "https://www.twhealth.top/";
+        $params["notifyUrl"] = "https://www.twhealth.top/notify";
+        $params["returnUrl"] = "https://www.twhealth.top/success";
 //        $params["accessTime"] = self::accessTime();
 //        $params["email"] = "961836760@qq.com";
 //        $params["email"] = "";
