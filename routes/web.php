@@ -17,3 +17,4 @@ Route::get('', [PayController::class, 'index']);
 
 
 Route::post('/pay', [PayController::class, 'pay']);
+Route::post('/notify', [PayController::class, 'notify']);

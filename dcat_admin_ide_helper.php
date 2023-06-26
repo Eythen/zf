@@ -41,14 +41,23 @@ namespace Dcat\Admin {
      * @property Grid\Column|Collection payload
      * @property Grid\Column|Collection exception
      * @property Grid\Column|Collection failed_at
+     * @property Grid\Column|Collection order_sn
+     * @property Grid\Column|Collection product_id
+     * @property Grid\Column|Collection pic
+     * @property Grid\Column|Collection num
+     * @property Grid\Column|Collection money_type
+     * @property Grid\Column|Collection money
+     * @property Grid\Column|Collection first_name
+     * @property Grid\Column|Collection last_name
+     * @property Grid\Column|Collection mobile
+     * @property Grid\Column|Collection address
+     * @property Grid\Column|Collection status
+     * @property Grid\Column|Collection logistics_company
+     * @property Grid\Column|Collection logistics_number
+     * @property Grid\Column|Collection deleted_at
      * @property Grid\Column|Collection email
      * @property Grid\Column|Collection token
-     * @property Grid\Column|Collection pic
-     * @property Grid\Column|Collection money
-     * @property Grid\Column|Collection money_type
-     * @property Grid\Column|Collection num
      * @property Grid\Column|Collection uid
-     * @property Grid\Column|Collection deleted_at
      * @property Grid\Column|Collection email_verified_at
      *
      * @method Grid\Column|Collection id(string $label = null)
@@ -81,14 +90,23 @@ namespace Dcat\Admin {
      * @method Grid\Column|Collection payload(string $label = null)
      * @method Grid\Column|Collection exception(string $label = null)
      * @method Grid\Column|Collection failed_at(string $label = null)
+     * @method Grid\Column|Collection order_sn(string $label = null)
+     * @method Grid\Column|Collection product_id(string $label = null)
+     * @method Grid\Column|Collection pic(string $label = null)
+     * @method Grid\Column|Collection num(string $label = null)
+     * @method Grid\Column|Collection money_type(string $label = null)
+     * @method Grid\Column|Collection money(string $label = null)
+     * @method Grid\Column|Collection first_name(string $label = null)
+     * @method Grid\Column|Collection last_name(string $label = null)
+     * @method Grid\Column|Collection mobile(string $label = null)
+     * @method Grid\Column|Collection address(string $label = null)
+     * @method Grid\Column|Collection status(string $label = null)
+     * @method Grid\Column|Collection logistics_company(string $label = null)
+     * @method Grid\Column|Collection logistics_number(string $label = null)
+     * @method Grid\Column|Collection deleted_at(string $label = null)
      * @method Grid\Column|Collection email(string $label = null)
      * @method Grid\Column|Collection token(string $label = null)
-     * @method Grid\Column|Collection pic(string $label = null)
-     * @method Grid\Column|Collection money(string $label = null)
-     * @method Grid\Column|Collection money_type(string $label = null)
-     * @method Grid\Column|Collection num(string $label = null)
      * @method Grid\Column|Collection uid(string $label = null)
-     * @method Grid\Column|Collection deleted_at(string $label = null)
      * @method Grid\Column|Collection email_verified_at(string $label = null)
      */
     class Grid {}
@@ -126,14 +144,23 @@ namespace Dcat\Admin {
      * @property Show\Field|Collection payload
      * @property Show\Field|Collection exception
      * @property Show\Field|Collection failed_at
+     * @property Show\Field|Collection order_sn
+     * @property Show\Field|Collection product_id
+     * @property Show\Field|Collection pic
+     * @property Show\Field|Collection num
+     * @property Show\Field|Collection money_type
+     * @property Show\Field|Collection money
+     * @property Show\Field|Collection first_name
+     * @property Show\Field|Collection last_name
+     * @property Show\Field|Collection mobile
+     * @property Show\Field|Collection address
+     * @property Show\Field|Collection status
+     * @property Show\Field|Collection logistics_company
+     * @property Show\Field|Collection logistics_number
+     * @property Show\Field|Collection deleted_at
      * @property Show\Field|Collection email
      * @property Show\Field|Collection token
-     * @property Show\Field|Collection pic
-     * @property Show\Field|Collection money
-     * @property Show\Field|Collection money_type
-     * @property Show\Field|Collection num
      * @property Show\Field|Collection uid
-     * @property Show\Field|Collection deleted_at
      * @property Show\Field|Collection email_verified_at
      *
      * @method Show\Field|Collection id(string $label = null)
@@ -166,14 +193,23 @@ namespace Dcat\Admin {
      * @method Show\Field|Collection payload(string $label = null)
      * @method Show\Field|Collection exception(string $label = null)
      * @method Show\Field|Collection failed_at(string $label = null)
+     * @method Show\Field|Collection order_sn(string $label = null)
+     * @method Show\Field|Collection product_id(string $label = null)
+     * @method Show\Field|Collection pic(string $label = null)
+     * @method Show\Field|Collection num(string $label = null)
+     * @method Show\Field|Collection money_type(string $label = null)
+     * @method Show\Field|Collection money(string $label = null)
+     * @method Show\Field|Collection first_name(string $label = null)
+     * @method Show\Field|Collection last_name(string $label = null)
+     * @method Show\Field|Collection mobile(string $label = null)
+     * @method Show\Field|Collection address(string $label = null)
+     * @method Show\Field|Collection status(string $label = null)
+     * @method Show\Field|Collection logistics_company(string $label = null)
+     * @method Show\Field|Collection logistics_number(string $label = null)
+     * @method Show\Field|Collection deleted_at(string $label = null)
      * @method Show\Field|Collection email(string $label = null)
      * @method Show\Field|Collection token(string $label = null)
-     * @method Show\Field|Collection pic(string $label = null)
-     * @method Show\Field|Collection money(string $label = null)
-     * @method Show\Field|Collection money_type(string $label = null)
-     * @method Show\Field|Collection num(string $label = null)
      * @method Show\Field|Collection uid(string $label = null)
-     * @method Show\Field|Collection deleted_at(string $label = null)
      * @method Show\Field|Collection email_verified_at(string $label = null)
      */
     class Show {}

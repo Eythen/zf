@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class PayController
 {
@@ -23,6 +24,62 @@ class PayController
 
 
     const Y4M2D2H2M2S2 = "YmdHis";
+
+    public function index(Request $request)
+    {
+        $uid = $request->input('uid');
+        if (!$uid) {
+            return abort("404");
+        }
+        $info = Product::where('uid', $uid)->first();
+        return view('welcome', compact('info'));
+    }
+
+    public function pay(Request $request)
+    {
+        $data = $request->all();
+        $params = $this->cnpSaleTestsJump($data);
+//        $params = $this->cnpSaleTestsDirect('HKD', '5');
+
+        $rsp = self::request(self::HOST_URL, $params);
+//        echo "response data: " . $rsp;
+//        echo PHP_EOL;
+        $rspArray = json_decode($rsp, true);
+//        $resultCode = $rspArray['resultCode'];
+//        echo "resultCode: " . $resultCode;
+//        echo PHP_EOL;
+//        $resultDesc = $rspArray['resultDesc'];
+//        echo "resultDesc: " . $resultDesc;
+//        echo PHP_EOL;
+        // valid response data
+//        self::validSign($rspArray);
+//        if (self::validSign($rspArray)) {
+////            dd($rspArray['payUrl']);
+//            return redirect($rspArray['payUrl']);
+//        }
+
+        $data = [
+            'status' => false,
+            'msg' => '',
+            'pay_url' => '',
+        ];
+        if ($rspArray['resultCode'] == "0000") {
+            if (self::validSign($rspArray)) {
+                $data['status'] = true;
+                $data['pay_url'] = $rspArray['payUrl'];
+                $data['msg'] = $rspArray['resultDesc'];
+            }
+        } else {
+            $data['msg'] = $rspArray['resultDesc'];
+        }
+        return response()->json($data);
+    }
+
+    public function notify(Request $request)
+    {
+        Log::info($request->all());
+//        return $request->all();
+    }
 
     public static function accessTime()
     {
@@ -110,54 +167,67 @@ class PayController
         return $ok;
     }
 
-    public function index(Request $request)
+    protected function cnpSaleTestsJump($data = array())
     {
-        $uid = $request->input('uid');
-        if (!$uid) {
-            return abort("404");
+        $params = array();
+        $params["panIsPaste"] = "1";
+        $params["version"] = self::VERSION;
+        $params["mchtId"] = self::MERCHANT_ID;
+        $params["transType"] = "Pay";
+        if ($data['money_type']) {
+            $params["language"] = "en";
+        } else {
+            $params["language"] = "zh-hant";
         }
-        $info = Product::where('uid', $uid)->first();
-        return view('welcome', compact('info'));
+        $params["currency"] = $data['money_type'];
+        $params["amount"] = $data['money'];
+//        $params["productInfo"] = $this->getProductInfo();
+        $product_info = [
+            [
+                'sku' => $data['uid'],
+                'productName' => $data['product_name'],
+                'price' => $data['money'],
+                'quantity' => $data['product_num'],
+            ]
+        ];
+        $params["productInfo"] = json_encode($product_info);
+        $params["shippingFirstName"] = $data['first_name'];
+        $params["shippingLastName"] = $data['last_name'];
+        $params["shippingAddress1"] = $data['address'];
+        $params["shippingCity"] = "shagnhai";
+        $params["shippingCountry"] = "CN";
+        $params["shippingState"] = "shagnhai";
+        $params["shippingZipCode"] = "440000";
+        $params["shippingPhone"] = $data['mobile'];
+        $params["billingPhone"] = $data['mobile'];
+        $params["notifyUrl"] = "https://www.twhealth.top/";
+//        $params["returnUrl"] = "https://www.twhealth.top/";
+//        $params["accessTime"] = self::accessTime();
+//        $params["email"] = "961836760@qq.com";
+//        $params["email"] = "";
+//        $params["billingFirstName"] = "杰伦";
+//        $params["billingLastName"] = "周";
+//        $params["billingAddress1"] = "广东省广州市测试 测试 测试测试 测试 测试*";
+//        $params["billingCity"] = "shagnhai";
+//        $params["billingCountry"] = "CN";
+//        $params["billingState"] = "shanghai";
+//        $params["billingZipCode"] = "440000";
+        $params["accessOrderId"] = time();
+        $params["signType"] = self::SIGN_TYPE;
+//        $params["bizreserve"] = "test";
+        $params["sign"] = self::signSHA256RSA($params);
+        return $params;
     }
 
-    public function pay(Request $request)
+    protected function getDmInf()
     {
-        $data = $request->all();
-        $params = $this->cnpSaleTestsJump($data);
-//        $params = $this->cnpSaleTestsDirect('HKD', '5');
-
-        $rsp = self::request(self::HOST_URL, $params);
-//        echo "response data: " . $rsp;
-//        echo PHP_EOL;
-        $rspArray = json_decode($rsp, true);
-//        $resultCode = $rspArray['resultCode'];
-//        echo "resultCode: " . $resultCode;
-//        echo PHP_EOL;
-//        $resultDesc = $rspArray['resultDesc'];
-//        echo "resultDesc: " . $resultDesc;
-//        echo PHP_EOL;
-        // valid response data
-//        self::validSign($rspArray);
-//        if (self::validSign($rspArray)) {
-////            dd($rspArray['payUrl']);
-//            return redirect($rspArray['payUrl']);
-//        }
-
-        $data = [
-            'status' => false,
-            'msg' => '',
-            'pay_url' => '',
-        ];
-        if ($rspArray['resultCode'] == "0000") {
-            if (self::validSign($rspArray)) {
-                $data['status'] = true;
-                $data['pay_url'] = $rspArray['payUrl'];
-                $data['msg'] = $rspArray['resultDesc'];
-            }
-        } else {
-            $data['msg'] = $rspArray['resultDesc'];
-        }
-        return response()->json($data);
+        $dmInf = array();
+        $dmInf["MerchantType"] = "RETAILS";
+        $dmInf["3DSFlag"] = "YES";
+        $dmInf["OrderChannel"] = "WEBSITE";
+        $dmInf["BuyerName"] = "Peter";
+        $dmInf["AccountAge"] = "";
+        return json_encode($dmInf);
     }
 
     protected function cnpSaleTestsDirect($currency, $amount)
@@ -201,7 +271,7 @@ class PayController
         $params["ipAddress"] = "120.0.0.1";
         $params["panIsPaste"] = "0";
 
-        $params["accessOrderId"] = time();
+        $params["accessOrderId"] = time() . rand(0000,9999);
 
         // 3DS way
         $params["securityMode"] = "3DS";
@@ -214,58 +284,6 @@ class PayController
         return $params;
     }
 
-    protected function cnpSaleTestsJump($data = array())
-    {
-        $params = array();
-        $params["panIsPaste"] = "1";
-        $params["version"] = self::VERSION;
-        $params["mchtId"] = self::MERCHANT_ID;
-        $params["transType"] = "Pay";
-        if ($data['money_type']) {
-            $params["language"] = "en";
-        } else {
-            $params["language"] = "zh-hant";
-        }
-        $params["currency"] = $data['money_type'];
-        $params["amount"] = $data['money'];
-//        $params["productInfo"] = $this->getProductInfo();
-        $product_info = [
-            [
-                'sku' => $data['uid'],
-                'productName' => $data['product_name'],
-                'price' => $data['money'],
-                'quantity' => $data['product_num'],
-            ]
-        ];
-        $params["productInfo"] = json_encode($product_info);
-        $params["shippingFirstName"] = $data['first_name'];
-        $params["shippingLastName"] = $data['last_name'];
-        $params["shippingAddress1"] = $data['address'];
-        $params["shippingCity"] = "shagnhai";
-        $params["shippingCountry"] = "CN";
-        $params["shippingState"] = "shagnhai";
-        $params["shippingZipCode"] = "440000";
-        $params["shippingPhone"] = $data['mobile'];
-        $params["billingPhone"] = $data['mobile'];
-        $params["notifyUrl"] = "https://www.twhealth.top/";
-        $params["returnUrl"] = "https://www.twhealth.top/";
-//        $params["accessTime"] = self::accessTime();
-//        $params["email"] = "961836760@qq.com";
-//        $params["email"] = "";
-//        $params["billingFirstName"] = "杰伦";
-//        $params["billingLastName"] = "周";
-//        $params["billingAddress1"] = "广东省广州市测试 测试 测试测试 测试 测试*";
-//        $params["billingCity"] = "shagnhai";
-//        $params["billingCountry"] = "CN";
-//        $params["billingState"] = "shanghai";
-//        $params["billingZipCode"] = "440000";
-        $params["accessOrderId"] = time();
-        $params["signType"] = self::SIGN_TYPE;
-//        $params["bizreserve"] = "test";
-        $params["sign"] = self::signSHA256RSA($params);
-        return $params;
-    }
-
     protected function getProductInfo()
     {
         return
@@ -273,16 +291,5 @@ class PayController
             . "{\"sku\":\"123122\",\"productName\":\"test测试1\", \"price\":\"114.99\", \"quantity\":\"800\", \"productImage\":\"imageUrl\",\"productUrl\":\"goodsUrl\"},"
             . "{\"sku\":\"123123\",\"productName\":\"test测试2\", \"price\":\"115.99\", \"quantity\":\"800\", \"productImage\":\"imageUrl\",\"productUrl\":\"goodsUrl\"},"
             . "{\"sku\":\"123124\",\"productName\":\"test测试3\", \"price\":\"116.99\", \"quantity\":\"800\", \"productImage\":\"imageUrl\",\"productUrl\":\"goodsUrl\"}]";
-    }
-
-    protected function getDmInf()
-    {
-        $dmInf = array();
-        $dmInf["MerchantType"] = "RETAILS";
-        $dmInf["3DSFlag"] = "YES";
-        $dmInf["OrderChannel"] = "WEBSITE";
-        $dmInf["BuyerName"] = "Peter";
-        $dmInf["AccountAge"] = "";
-        return json_encode($dmInf);
     }
 }
