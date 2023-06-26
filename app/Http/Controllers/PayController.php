@@ -12,6 +12,8 @@ class PayController
     const HOST_URL = "https://test.allinpayhk.com/gateway/cnp/quickpay";
     const WX_HOST_URL = "https://oats.allinpay.com/gateway/pay/consumeTrans";
 
+    const ACCESS_CODE = '';
+
     const VERSION = "V2.0.0";
     const SIGN_TYPE = "RSA2";
     const PUBLIC_KEY = "-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsNGWmxYl6uYA/X3k1OOYnMlLvmgJpYMvahxDLUc9CEXbaqMoMMuLbsvfR6Zf3JIeYCjjfgNVDJTsJY/HWWbpHEd4GvQAgv6wywsQ8AJqIHe3fM3B8iwS3XIxZM9fs92lU+mHuVHQdMvciQyaB3iw3IvBBzCEgyqSFcGBrlQOGf1x7fZZKY9RH3EDxqzE+Zrs27BjE8T3sNvUCKcfWGhQGKX80jcqLEnFBl9CIlgL4TRSksQ1U4GhOY0/4Db6UsmbTAQeG2plWgbJ0l0khJ2ODYqTtDujl4zN3tGXQ2gwCErxqBbukIFMkT+jS1lxrBeGGrvuOXTz408tDbAsJnbUYwIDAQAB\n-----END PUBLIC KEY-----";
