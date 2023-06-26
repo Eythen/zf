@@ -30,13 +30,9 @@ class OrderController extends AdminController
             $grid->column('mobile');
             $grid->column('address');
             //0、未支付；1、已支付；2、已发货
-            $grid->column('status')->using(['未支付', '已支付', '已发货'])->label([
-                0 => 'danger',
-                1 => 'primary',
-                2 => 'success',
-            ]);
-            $grid->column('logistics_company');
-            $grid->column('logistics_number');
+            $grid->column('status')->radio(['未支付', '已支付', '已发货'], true);
+            $grid->column('logistics_company')->editable(true);
+            $grid->column('logistics_number')->editable(true);
             $grid->column('created_at');
 
             $grid->tools(function ($tools) {
@@ -88,6 +84,35 @@ class OrderController extends AdminController
                     $tools->disableEdit();
                     $tools->disableDelete();
                 });
+        });
+    }
+
+    /**
+     * Make a form builder.
+     *
+     * @return Form
+     */
+    protected function form()
+    {
+        return Form::make(new Order(), function (Form $form) {
+            $form->display('id');
+            $form->text('order_sn');
+            $form->text('product_id');
+            $form->text('name');
+            $form->text('pic');
+            $form->text('num');
+            $form->text('money_type');
+            $form->text('money');
+            $form->text('first_name');
+            $form->text('last_name');
+            $form->text('mobile');
+            $form->text('address');
+            $form->text('status');
+            $form->text('logistics_company');
+            $form->text('logistics_number');
+
+            $form->display('created_at');
+            $form->display('updated_at');
         });
     }
 }
