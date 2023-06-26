@@ -174,7 +174,7 @@ class PayController
         $params["version"] = self::VERSION;
         $params["mchtId"] = self::MERCHANT_ID;
         $params["transType"] = "Pay";
-        if ($data['money_type']) {
+        if ($data['money_type'] == 'USD') {
             $params["language"] = "en";
         } else {
             $params["language"] = "zh-hant";
