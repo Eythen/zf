@@ -43,46 +43,74 @@ class PayController
     public function pay(Request $request)
     {
         $post = $request->all();
-        if ($post['payment'] == 1) {
-            $params = $this->cnpSaleTestsJump($post);
-            $rsp = self::request(self::HOST_URL, $params);
-            $rspArray = json_decode($rsp, true);
-        } else {
-            $params = $this->wxOrderPay($post);
-
-            $rsp = self::request(self::WX_HOST_URL, $params);
-            $rspArray = json_decode($rsp, true);
-        }
 
         $data = [
             'status' => false,
             'msg' => '',
             'pay_url' => '',
         ];
-        if ($rspArray['resultCode'] == "0000") {
-            if (self::validSign($rspArray)) {
-                Order::create([
-                    'order_sn' => $params['accessOrderId'],
-                    'product_id' => $post['product_id'],
-                    'name' => $post['product_name'],
-                    'pic' => $post['pic'],
-                    'num' => $post['product_num'],
-                    'money_type' => $post['money_type'],
-                    'money' => $post['money'],
-                    'first_name' => $post['first_name'],
-                    'last_name' => $post['last_name'],
-                    'mobile' => $post['mobile'],
-                    'address' => $post['address'],
-                    'status' => 0,
-                    'payment' => $post['payment'],
-                ]);
-                $data['status'] = true;
-                $data['pay_url'] = $rspArray['payUrl'];
+        if ($post['payment'] == 1) {
+            $params = $this->cnpSaleTestsJump($post);
+            $rsp = self::request(self::HOST_URL, $params);
+            $rspArray = json_decode($rsp, true);
+
+            if ($rspArray['resultCode'] == "0000") {
+                if (self::validSign($rspArray)) {
+                    Order::create([
+                        'order_sn' => $params['accessOrderId'],
+                        'product_id' => $post['product_id'],
+                        'name' => $post['product_name'],
+                        'pic' => $post['pic'],
+                        'num' => $post['product_num'],
+                        'money_type' => $post['money_type'],
+                        'money' => $post['money'],
+                        'first_name' => $post['first_name'],
+                        'last_name' => $post['last_name'],
+                        'mobile' => $post['mobile'],
+                        'address' => $post['address'],
+                        'status' => 0,
+                        'payment' => $post['payment'],
+                    ]);
+                    $data['status'] = true;
+                    $data['pay_url'] = $rspArray['payUrl'];
+                    $data['msg'] = $rspArray['resultDesc'];
+                }
+            } else {
                 $data['msg'] = $rspArray['resultDesc'];
             }
+
         } else {
-            $data['msg'] = $rspArray['resultDesc'];
+            $params = $this->wxOrderPay($post);
+
+            $rsp = self::request(self::WX_HOST_URL, $params);
+            $rspArray = json_decode($rsp, true);
+
+            if ($rspArray['returnCode'] == "0000") {
+                if (self::validSign($rspArray)) {
+                    Order::create([
+                        'order_sn' => $params['accessOrderId'],
+                        'product_id' => $post['product_id'],
+                        'name' => $post['product_name'],
+                        'pic' => $post['pic'],
+                        'num' => $post['product_num'],
+                        'money_type' => $post['money_type'],
+                        'money' => $post['money'],
+                        'first_name' => $post['first_name'],
+                        'last_name' => $post['last_name'],
+                        'mobile' => $post['mobile'],
+                        'address' => $post['address'],
+                        'status' => 0,
+                        'payment' => $post['payment'],
+                    ]);
+                    $data['status'] = true;
+                    $data['pay_url'] = $rspArray['payUrl'];
+                    $data['msg'] = $rspArray['returnMsg'];
+                }
+            } else {
+                $data['msg'] = $rspArray['returnMsg'];
+            }
         }
+
         return response()->json($data);
     }
 
