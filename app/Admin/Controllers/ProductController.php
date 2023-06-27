@@ -75,8 +75,8 @@ class ProductController extends AdminController
             $form->text('name')->required();
             $form->image('pic')->disk('admin')->saveFullUrl()->uniqueName()->autoUpload();
             $form->text('money')->required();
-            //USD美元TWD台币HKD港币
-            $form->radio('money_type')->options(['USD' => '美元', 'TWD'=> '台币', 'HKD' => '港币'])->default('USD');
+            //USD美元TWD台币HKD港币SGD新加坡元
+            $form->radio('money_type')->options(['USD' => '美元', 'TWD'=> '台币', 'HKD' => '港币', 'SGD' => '新加坡元'])->default('USD');
             $form->number('num')->required();
             $data = Uuid::uuid1();
             $form->hidden('uid')->value($data->getHex());
