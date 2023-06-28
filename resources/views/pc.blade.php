@@ -38,6 +38,7 @@
 
         td {
             border-bottom: 1px solid #eeeeee;
+            width: 220px;
         }
 
         .activenav {

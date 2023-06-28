@@ -167,6 +167,7 @@
 
     .rest {
         padding: 15px;
+        padding-bottom: 50px;
     }
 
     .rest div {
