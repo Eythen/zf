@@ -205,7 +205,7 @@
 <!--商品信息-->
 <div class="pannel goods">
     <div class="pic">
-        <a href="#"><img width="85px" src="{{ $info->pic }}" alt=""> </a>
+        <a href="#"><img width="85px" height="85px" src="{{ $info->pic }}" alt=""> </a>
     </div>
     <div class="info">
         <h5>{{$info->name}}</h5>
