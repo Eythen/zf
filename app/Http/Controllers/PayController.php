@@ -46,6 +46,14 @@ class PayController
     public function pay(Request $request)
     {
         $post = $request->all();
+        if (!$post['payment']) {
+            $data = [
+                'status' => false,
+                'msg' => '支付方式必填（Payment method is required）',
+                'pay_url' => '',
+            ];
+            return response()->json($data);
+        }
 
         $data = [
             'status' => false,
