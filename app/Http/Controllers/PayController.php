@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Log;
 
 class PayController
 {
-    const HOST_URL = "https://oats.allinpayhk.com/gateway/cnp/quickpay";
+    const HOST_URL = "https://oats.allinpay.com/gateway/cnp/quickpay";
     const WX_HOST_URL = "https://oats.allinpay.com/gateway/pay/consumeTrans";
 
     const ACCESS_CODE = '85200764';
