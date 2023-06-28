@@ -88,10 +88,10 @@ class PayController
             $rsp = self::request(self::WX_HOST_URL, $params);
             $rspArray = json_decode($rsp, true);
 
-            if ($rspArray['returnCode'] == "0000") {
-                if (self::validSign($rspArray)) {
+            if ($rspArray['returnCode'] == "0000" && key_exists('payInfo', $rspArray)) {
+//                if (self::validSign($rspArray)) {
                     Order::create([
-                        'order_sn' => $params['accessOrderId'],
+                        'order_sn' => $params['outTransNo'],
                         'product_id' => $post['product_id'],
                         'name' => $post['product_name'],
                         'pic' => $post['pic'],
@@ -106,11 +106,11 @@ class PayController
                         'payment' => $post['payment'],
                     ]);
                     $data['status'] = true;
-                    $data['pay_url'] = $rspArray['payUrl'];
-                    $data['msg'] = $rspArray['returnMsg'];
-                }
+                    $data['pay_url'] = $rspArray['payInfo'];
+                    $data['msg'] = $rspArray['resultMsg'];
+//                }
             } else {
-                $data['msg'] = $rspArray['returnMsg'];
+                $data['msg'] = $rspArray['resultMsg'];
             }
         }
 
@@ -126,8 +126,8 @@ class PayController
         $params["transType"] = "WXPAY_BRANCH_MP";
         $params["signType"] = self::SIGN_TYPE;
         $params["mchNo"] = self::MERCHANT_ID;
-        $params["outTransNo"] = time();
-        $params["transAmount"] = $data['money'];
+        $params["outTransNo"] = time() . rand(0000, 9999);
+        $params["transAmount"] = $data['money']*100;
         $params["currency"] = $data['money_type'];
         $params["notifyUrl"] = 'https://www.twhealth.top/notify';
         $params["signature"] = self::signSHA256RSA($params);
