@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class PayController
 {
@@ -192,6 +193,7 @@ class PayController
             } else {
                 $data['msg'] = $rspArray['resultMsg'];
             }
+            dd($params,$rspArray);
         }
 
         return response()->json($data);
@@ -217,11 +219,19 @@ class PayController
     public function notify(Request $request)
     {
         $data = $request->all();
+        Log::info($data);
         if ($data['resultCode'] == '0000') {
-            $info = Order::where([
-                'order_sn' => $data['accessOrderId'],
-                'status' => 0
-            ])->first();
+            if (key_exists('accessOrderId', $data)) {
+                $info = Order::where([
+                    'order_sn' => $data['accessOrderId'],
+                    'status' => 0
+                ])->first();
+            } elseif (key_exists('outTransNo', $data)) {
+                $info = Order::where([
+                    'order_sn' => $data['outTransNo'],
+                    'status' => 0
+                ])->first();
+            }
             if ($info) {
                 $info->status = 1;
                 $info->save();
