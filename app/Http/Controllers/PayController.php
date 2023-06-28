@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Order;
 use App\Models\Product;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 
 class PayController
 {
@@ -40,7 +39,80 @@ class PayController
             return abort("404");
         }
         $info = Product::where('uid', $uid)->first();
-        return view('welcome', compact('info'));
+        $isMobile = $this->isMobile();
+        if ($isMobile) {
+            return view('h5', compact('info'));
+        } else {
+            return view('pc', compact('info'));
+
+        }
+    }
+
+    public function isMobile()
+    {
+        // 如果有HTTP_X_WAP_PROFILE则一定是移动设备
+        if (isset ($_SERVER['HTTP_X_WAP_PROFILE'])) {
+            return TRUE;
+        }
+
+        // 如果via信息含有wap则一定是移动设备,部分服务商会屏蔽该信息
+        if (isset ($_SERVER['HTTP_VIA'])) {
+            return stristr($_SERVER['HTTP_VIA'], "wap") ? TRUE : FALSE;// 找不到为flase,否则为TRUE
+        }
+
+        // 判断手机发送的客户端标志,兼容性有待提高
+        if (isset ($_SERVER['HTTP_USER_AGENT'])) {
+            $clientkeywords = array(
+                'mobile',
+                'nokia',
+                'sony',
+                'ericsson',
+                'mot',
+                'samsung',
+                'htc',
+                'sgh',
+                'lg',
+                'sharp',
+                'sie-',
+                'philips',
+                'panasonic',
+                'alcatel',
+                'lenovo',
+                'iphone',
+                'ipod',
+                'blackberry',
+                'meizu',
+                'android',
+                'netfront',
+                'symbian',
+                'ucweb',
+                'windowsce',
+                'palm',
+                'operamini',
+                'operamobi',
+                'openwave',
+                'nexusone',
+                'cldc',
+                'midp',
+                'wap'
+            );
+
+            // 从HTTP_USER_AGENT中查找手机浏览器的关键字
+            if (preg_match("/(" . implode('|', $clientkeywords) . ")/i", strtolower($_SERVER['HTTP_USER_AGENT']))) {
+                return TRUE;
+            }
+        }
+
+        if (isset ($_SERVER['HTTP_ACCEPT'])) { // 协议法，因为有可能不准确，放到最后判断
+            // 如果只支持wml并且不支持html那一定是移动设备
+            // 如果支持wml和html但是wml在html之前则是移动设备
+            if ((strpos($_SERVER['HTTP_ACCEPT'], 'vnd.wap.wml') !== FALSE) && (strpos($_SERVER['HTTP_ACCEPT'], 'text/html') === FALSE || (strpos($_SERVER['HTTP_ACCEPT'], 'vnd.wap.wml') < strpos($_SERVER['HTTP_ACCEPT'], 'text/html')))) {
+                return TRUE;
+            }
+        }
+
+        return FALSE;
+
     }
 
     public function pay(Request $request)
@@ -98,24 +170,24 @@ class PayController
 
             if ($rspArray['returnCode'] == "0000" && key_exists('payInfo', $rspArray)) {
 //                if (self::validSign($rspArray)) {
-                    Order::create([
-                        'order_sn' => $params['outTransNo'],
-                        'product_id' => $post['product_id'],
-                        'name' => $post['product_name'],
-                        'pic' => $post['pic'],
-                        'num' => $post['product_num'],
-                        'money_type' => $post['money_type'],
-                        'money' => $post['money'],
-                        'first_name' => $post['first_name'],
-                        'last_name' => $post['last_name'],
-                        'mobile' => $post['mobile'],
-                        'address' => $post['address'],
-                        'status' => 0,
-                        'payment' => $post['payment'],
-                    ]);
-                    $data['status'] = true;
-                    $data['pay_url'] = $rspArray['payInfo'];
-                    $data['msg'] = $rspArray['resultMsg'];
+                Order::create([
+                    'order_sn' => $params['outTransNo'],
+                    'product_id' => $post['product_id'],
+                    'name' => $post['product_name'],
+                    'pic' => $post['pic'],
+                    'num' => $post['product_num'],
+                    'money_type' => $post['money_type'],
+                    'money' => $post['money'],
+                    'first_name' => $post['first_name'],
+                    'last_name' => $post['last_name'],
+                    'mobile' => $post['mobile'],
+                    'address' => $post['address'],
+                    'status' => 0,
+                    'payment' => $post['payment'],
+                ]);
+                $data['status'] = true;
+                $data['pay_url'] = $rspArray['payInfo'];
+                $data['msg'] = $rspArray['resultMsg'];
 //                }
             } else {
                 $data['msg'] = $rspArray['resultMsg'];
@@ -135,7 +207,7 @@ class PayController
         $params["signType"] = self::SIGN_TYPE;
         $params["mchNo"] = self::MERCHANT_ID;
         $params["outTransNo"] = time() . rand(0000, 9999);
-        $params["transAmount"] = $data['money']*100;
+        $params["transAmount"] = $data['money'] * 100;
         $params["currency"] = $data['money_type'];
         $params["notifyUrl"] = 'https://www.twhealth.top/notify';
         $params["signature"] = self::signSHA256RSA($params);
