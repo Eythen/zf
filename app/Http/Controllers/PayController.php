@@ -170,7 +170,6 @@ class PayController
             $rspArray = json_decode($rsp, true);
 
             if ($rspArray['returnCode'] == "0000" && key_exists('payInfo', $rspArray)) {
-                //
 //                if (self::validSign($rspArray)) {
                 Order::create([
                     'order_sn' => $params['outTransNo'],
