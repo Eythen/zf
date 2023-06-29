@@ -193,7 +193,6 @@ class PayController
             } else {
                 $data['msg'] = $rspArray['resultMsg'];
             }
-            dd($params,$rspArray);
         }
 
         return response()->json($data);
